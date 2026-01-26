@@ -1,9 +1,30 @@
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import { Check, Crown, PieChart, Target, Wallet } from "lucide-react"
 
 const LandingPage = () => {
   const { user } = useAuth()
+  const navigate = useNavigate();
+
+  const handleNavToAuth = (bool) => {
+    let link;
+    if (user) {
+      link = '/dashboard'; 
+    }  else {
+      link = '/auth';
+    }
+
+    navigate(link, { state: { isLogin: bool } });
+  }
+
+  const handleSign = ()=> {
+    navigate("/auth");
+    window.open(
+      "https://pay.kirvano.com/bd353e05-2ba0-4e19-b68b-fd8c6b9ea069",
+      "_blank",
+      "noopener,noreferrer"
+    );
+  }
 
   return (
     <div className="fade-in">
@@ -20,20 +41,20 @@ const LandingPage = () => {
         </p>
         
         <div className="flex flex-col sm:flex-row justify-center gap-4 mb-16">
-          <Link
-            to={user ? '/dashboard' : '/auth'}
+          <button
+            onClick={() => handleNavToAuth(false)}
             className="px-8 py-4 bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-xl hover:shadow-lg transition-all transform hover:-translate-y-1 flex items-center justify-center"
           >
             <Wallet className="mr-2" size={20} />
             {user ? 'Ir para Dashboard' : 'Testar grátis sem login'}
-          </Link>
-          <Link
-            to="/auth"
+          </button>
+          <button
+            onClick={() => handleNavToAuth(false)}
             className="px-8 py-4 border-2 border-purple-600 text-purple-600 rounded-xl hover:bg-purple-50 transition flex items-center justify-center"
           >
             <Crown className="mr-2" size={20} />
             Criar conta gratuita
-          </Link>
+          </button>
         </div>
         
         <div className="mb-16">
@@ -165,12 +186,12 @@ const LandingPage = () => {
               <p className="text-sm text-gray-500 mb-4">
                 ou R$ 192,00/ano (R$ 16,00/mês)
               </p>
-              <Link
-                to="/premium"
+              <button
+                onClick={handleSign}
                 className="w-full py-3 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-lg font-semibold hover:shadow-lg transition flex items-center justify-center"
               >
                 Assinar Agora
-              </Link>
+              </button>
             </div>
           </div>
         </div>

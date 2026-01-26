@@ -9,8 +9,13 @@ const PricingPlans = () => {
 
   const handleCheckout = async () => {
     // Integração com Stripe será implementada aqui
-    alert('Redirecionando para checkout...')
-    navigate("https://pay.kirvano.com/bd353e05-2ba0-4e19-b68b-fd8c6b9ea069");
+    alert('Redirecionando para checkout...');
+    navigate("/auth");
+    window.open(
+      "https://pay.kirvano.com/bd353e05-2ba0-4e19-b68b-fd8c6b9ea069",
+      "_blank",
+      "noopener,noreferrer"
+    );
   }
 
   return (

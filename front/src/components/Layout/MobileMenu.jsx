@@ -5,7 +5,7 @@ const MobileMenu = ({ isOpen, onClose, user, isProUser, darkMode, toggleTheme, o
   if (!isOpen) return null
 
   return (
-    <div className="md:hidden glass-effect border-t border-gray-200 dark:border-gray-800 px-4 py-3">
+    <div className="  md:hidden fixed top-14 left-0 w-full glass-effect border-t border-gray-200 dark:border-gray-800 px-4 py-3 z-50">
       <div className="flex flex-col space-y-3">
         <Link to="/#features" className="py-2 hover:text-purple-600" onClick={onClose}>
           Funcionalidades
