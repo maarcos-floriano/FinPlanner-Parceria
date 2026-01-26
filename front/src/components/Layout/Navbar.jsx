@@ -16,6 +16,10 @@ const Navbar = () => {
     navigate('/')
   }
 
+  const handleNavToAuth = (bool) => {
+    navigate("/auth", { state: { isLogin: bool } });
+  }
+
   return (
     <>
       <nav className="glass-effect sticky top-0 z-50 border-b border-gray-200 dark:border-gray-800">
@@ -51,18 +55,18 @@ const Navbar = () => {
             
             {!user ? (
               <div className="flex space-x-3">
-                <Link
-                  to="/auth"
+                <button
+                  onClick={() => handleNavToAuth(true)}
                   className="px-4 py-2 rounded-lg border border-purple-600 text-purple-600 hover:bg-purple-50 transition"
                 >
                   Entrar
-                </Link>
-                <Link
-                  to="/auth"
+                </button>
+                <button
+                  onClick={() => handleNavToAuth(false)}
                   className="px-4 py-2 rounded-lg bg-purple-600 text-white hover:bg-purple-700 transition"
                 >
                   Testar Grátis
-                </Link>
+                </button>
               </div>
             ) : (
               <div className="flex items-center space-x-4">

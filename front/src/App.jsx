@@ -14,6 +14,7 @@ import NotFoundPage from './pages/NotFoundPage'
 import './utils/icons' // Importar ícones
 import {PrivateRoute, PublicRoute} from './ConfigRoute'
 import ActivatePro from './pages/ActivatePro'
+import ForgotPasswordForm from './pages/ForgotPasswordForm'
 
 function App() {
   return (
@@ -34,6 +35,11 @@ function App() {
                     <Route path="/auth" element={
                       <PublicRoute>
                         <AuthPage />
+                      </PublicRoute>
+                    } />
+                    <Route path="/forgot-password" element={
+                      <PublicRoute>
+                        <ForgotPasswordForm />
                       </PublicRoute>
                     } />
                     <Route path="/activate" element={

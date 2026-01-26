@@ -1,11 +1,19 @@
-import { useState } from 'react'
-import { Link } from 'react-router-dom'
+import { useEffect, useState } from 'react'
+import { Link, useLocation } from 'react-router-dom'
 import LoginForm from '../components/Auth/LoginForm'
 import RegisterForm from '../components/Auth/RegisterForm'
 import { Crown } from 'lucide-react'
 
 const AuthPage = () => {
+  const {state} = useLocation();
   const [isLogin, setIsLogin] = useState(true)
+
+  useEffect(() => {
+    if (state?.isLogin !== undefined) {
+      setIsLogin(state.isLogin);
+    }
+  }, [state]);
+
 
   return (
     <div className="fade-in">
