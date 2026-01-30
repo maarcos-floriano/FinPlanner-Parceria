@@ -1,21 +1,52 @@
 import { Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '../../context/AuthContext'
 import { Check, Crown, X } from "lucide-react"
+import Modal from '../UI/Modal'
+import { useState } from 'react'
 
 const PricingPlans = () => {
   const { user, isProUser } = useAuth()
 
   const navigate = useNavigate();
 
+    const [modal, setModal] = useState({
+      isOpen: false,
+      text: "",
+      title: "",
+    });
+  
+
+  const handleOnCloseModal = () => {
+    setModal({
+      isOpen: false,
+      text: '',
+      title: '',
+    });    
+  }
+
+
   const handleCheckout = async () => {
     // Integração com Stripe será implementada aqui
-    alert('Redirecionando para checkout...');
-    navigate("/auth");
-    window.open(
-      "https://pay.kirvano.com/bd353e05-2ba0-4e19-b68b-fd8c6b9ea069",
-      "_blank",
-      "noopener,noreferrer"
-    );
+    setModal({
+      isOpen: true,
+      text: 'Redirecionando para checkout...',
+      title: 'Notificação',
+    });
+    const timer = setTimeout(() => {
+      setModal({
+        isOpen: false,
+        text: '',
+        title: '',
+      });    
+      navigate("/auth");
+      window.open(
+        "https://pay.kirvano.com/bd353e05-2ba0-4e19-b68b-fd8c6b9ea069",
+        "_blank",
+        "noopener,noreferrer"
+      );
+    }, 2000);  
+
+    return () => clearTimeout(timer);
   }
 
   return (
@@ -149,6 +180,12 @@ const PricingPlans = () => {
           </div>
         </div>
       </div>
+        <Modal
+          isOpen={modal.isOpen}
+          onClose={handleOnCloseModal}
+          title={modal.title}
+          children={modal.text}
+      />
     </div>
   )
 }

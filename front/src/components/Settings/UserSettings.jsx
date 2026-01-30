@@ -8,7 +8,6 @@ const UserSettings = () => {
   const { user, isProUser, logout, updateProfile } = useAuth()
   const { darkMode, toggleTheme } = useTheme()
   
-  const [modalAction, setModalAction] = useState("");
   const [modal, setModal] = useState({
     isOpen: false,
     text: "",

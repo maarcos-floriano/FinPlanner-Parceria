@@ -15,6 +15,7 @@ import './utils/icons' // Importar ícones
 import {PrivateRoute, PublicRoute} from './ConfigRoute'
 import ActivatePro from './pages/ActivatePro'
 import ForgotPasswordForm from './pages/ForgotPasswordForm'
+import PricingPlans from './components/Premium/PricingPlans'
 
 function App() {
   return (
@@ -57,7 +58,7 @@ function App() {
                       } />
                     <Route path="/premium" element={
                       <PrivateRoute>
-                        <PremiumPage />
+                        <PricingPlans />
                       </PrivateRoute>
                     } />
                     <Route path="/settings" element={

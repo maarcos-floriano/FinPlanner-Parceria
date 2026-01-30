@@ -94,16 +94,16 @@ const DashboardPage = () => {
           title: "Notificação",
           showActions: false
       });
-      const timer = setTimeout(() => {
+      setTimeout(() => {
         setModal(prev => ({
+          ...prev,
           isOpen: false,
           text: "",
           title: "",
-          ...prev
         }));
-      }, [2000]);
+        
+      }, 2000);
 
-      return () => clearTimeout(timer);
     } catch (error) {
       alert('Erro ao salvar transação: ' + error.message)
     }
