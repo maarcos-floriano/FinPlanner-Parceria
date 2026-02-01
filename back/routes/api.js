@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { verifyToken } = require('../middleware/auth');
+const { verifyToken, verifyResetToken } = require('../middleware/auth');
 const { requirePremium } = require('../middleware/premium');
 
 // Controladores
@@ -15,6 +15,8 @@ const paymentController = require('../controllers/paymentController');
 router.post('/register', authController.register);
 router.post('/login', authController.login);
 router.get('/me', verifyToken, authController.getProfile);
+router.post('/update-pass', verifyResetToken, authController.updatePass);
+router.post('/reset-pass', authController.passwordReset);
 
 // Transações
 router.get('/transactions', verifyToken, transactionController.getTransactions);

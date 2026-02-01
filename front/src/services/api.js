@@ -116,6 +116,22 @@ export const updateProfile = (userData) => {
   })
 }
 
+
+export const updatePass = (userData) => {
+  return apiRequest('/update-pass', {
+    method: 'POST',
+    body: userData
+  })
+}
+
+
+export const resetPass = (userData) => {
+  return apiRequest('/reset-pass', {
+    method: 'POST',
+    body: userData
+  })
+}
+
 // Transações
 export const getTransactions = (filters = {}) => {
   const queryString = new URLSearchParams(filters).toString()
@@ -208,3 +224,4 @@ export const activatePayment = (data) => {
     body: data
   });
 }
+
