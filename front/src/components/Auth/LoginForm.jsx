@@ -8,22 +8,24 @@ const LoginForm = ({ onToggleForm }) => {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [loading, setLoading] = useState(false)
+  const [errorMessage, setErrorMessage] = useState('')
   const { login } = useAuth()
   const navigate = useNavigate()
 
   const handleSubmit = async (e) => {
     e.preventDefault()
     setLoading(true)
+    setErrorMessage('')
     
     try {
       const result = await login(email, password)
       if (result.success) {
         navigate('/dashboard')
       } else {
-        alert(result.error)
+        setErrorMessage(result.error || 'Nao foi possivel entrar. Confira email e senha.')
       }
     } catch (error) {
-      alert('Erro ao fazer login: ' + error.message)
+      setErrorMessage(error.message || 'Erro ao fazer login.')
     } finally {
       setLoading(false)
     }
@@ -68,6 +70,12 @@ const LoginForm = ({ onToggleForm }) => {
       >
         {loading ? 'Entrando...' : 'Entrar'}
       </button>
+
+      {errorMessage && (
+        <div className="mb-4 rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">
+          {errorMessage}
+        </div>
+      )}
       
       <div className="text-center mb-6">
         <p className="text-sm text-gray-600 dark:text-gray-400 mb-3">Ou entre com</p>

@@ -12,3 +12,5 @@
 - Criada tela `AdminPage` para metricas, busca de usuarios, telefone e troca de plano.
 - Landing e pagina de planos trocadas para narrativa Essencial vs WhatsApp.
 - Adicionados `back/.env.example`, `front/.env.example` e guia raiz `DEPLOY.md`.
+- Dashboard mobile remodelada como app: saldo compacto, botoes grandes `Gastei`/`Recebi`, historico simples e formulario em bottom sheet.
+- Login com email/senha agora exibe erro dentro do formulario em vez de depender de alert.
