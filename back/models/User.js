@@ -22,14 +22,37 @@ const User = sequelize.define('User', {
   },
   password_hash: {
     type: DataTypes.STRING,
-    allowNull: false
+    allowNull: true
   },
   plan: {
-    type: DataTypes.ENUM('free', 'premium'),
+    type: DataTypes.ENUM('free', 'essential', 'whatsapp', 'premium'),
     defaultValue: 'free'
+  },
+  subscription_status: {
+    type: DataTypes.ENUM('trial', 'active', 'past_due', 'canceled'),
+    defaultValue: 'trial'
+  },
+  phone: {
+    type: DataTypes.STRING
+  },
+  google_id: {
+    type: DataTypes.STRING
+  },
+  avatar_url: {
+    type: DataTypes.STRING
+  },
+  is_admin: {
+    type: DataTypes.BOOLEAN,
+    defaultValue: false
   },
   stripe_customer_id: {
     type: DataTypes.STRING
+  },
+  kirvano_customer_id: {
+    type: DataTypes.STRING
+  },
+  last_login_at: {
+    type: DataTypes.DATE
   },
   created_at: {
     type: DataTypes.DATE,
@@ -54,6 +77,7 @@ const User = sequelize.define('User', {
 });
 
 User.prototype.validPassword = async function(password) {
+  if (!this.password_hash) return false;
   return await bcrypt.compare(password, this.password_hash);
 };
 

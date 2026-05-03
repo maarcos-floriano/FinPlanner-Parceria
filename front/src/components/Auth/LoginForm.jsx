@@ -1,7 +1,8 @@
 import { useState } from 'react'
 import { useAuth } from '../../context/AuthContext'
 import { useNavigate } from 'react-router-dom'
-import { Chrome, Facebook, Mail, Lock } from 'lucide-react'
+import { Mail, Lock } from 'lucide-react'
+import GoogleButton from './GoogleButton'
 
 const LoginForm = ({ onToggleForm }) => {
   const [email, setEmail] = useState('')
@@ -69,21 +70,8 @@ const LoginForm = ({ onToggleForm }) => {
       </button>
       
       <div className="text-center mb-6">
-        <p className="text-sm text-gray-600 dark:text-gray-400">Ou entre com</p>
-        <div className="flex justify-center space-x-4 mt-3">
-          <button
-            type="button"
-            className="p-3 rounded-full border border-gray-300 dark:border-gray-700 hover:bg-gray-100 dark:hover:bg-gray-800 transition"
-          >
-            <Chrome className="text-red-500" size={20} />
-          </button>
-          <button
-            type="button"
-            className="p-3 rounded-full border border-gray-300 dark:border-gray-700 hover:bg-gray-100 dark:hover:bg-gray-800 transition"
-          >
-            <Facebook className="text-blue-600" size={20} />
-          </button>
-        </div>
+        <p className="text-sm text-gray-600 dark:text-gray-400 mb-3">Ou entre com</p>
+        <GoogleButton />
       </div>
       
       <div className="text-center">

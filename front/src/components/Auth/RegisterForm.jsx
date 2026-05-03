@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { useAuth } from '../../context/AuthContext'
 import { useNavigate } from 'react-router-dom'
 import { Mail, Lock, User } from 'lucide-react'
+import GoogleButton from './GoogleButton'
 
 const RegisterForm = ({ onToggleForm }) => {
   const [name, setName] = useState('')
@@ -90,6 +91,11 @@ const RegisterForm = ({ onToggleForm }) => {
       >
         {loading ? 'Criando conta...' : 'Criar Conta'}
       </button>
+
+      <div className="text-center mb-4">
+        <p className="text-sm text-gray-600 dark:text-gray-400 mb-3">Ou crie com Google</p>
+        <GoogleButton />
+      </div>
       
       <div className="text-center">
         <p className="text-sm">

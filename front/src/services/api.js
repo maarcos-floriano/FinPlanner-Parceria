@@ -98,6 +98,13 @@ export const login = (email, password) => {
   })
 }
 
+export const googleLogin = (credential) => {
+  return apiRequest('/auth/google', {
+    method: 'POST',
+    body: { credential }
+  })
+}
+
 export const register = (name, email, password) => {
   return apiRequest('/register', {
     method: 'POST',
@@ -192,9 +199,10 @@ export const deleteGoal = (id) => {
 }
 
 // Stripe
-export const createCheckoutSession = () => {
+export const createCheckoutSession = (plan = 'essential') => {
   return apiRequest('/checkout', {
-    method: 'POST'
+    method: 'POST',
+    body: { plan }
   })
 }
 
@@ -223,5 +231,19 @@ export const activatePayment = (data) => {
     method: "POST",
     body: data
   });
+}
+
+export const getAdminOverview = () => apiRequest('/admin/overview')
+
+export const getAdminUsers = (filters = {}) => {
+  const queryString = new URLSearchParams(filters).toString()
+  return apiRequest(`/admin/users${queryString ? `?${queryString}` : ''}`)
+}
+
+export const updateAdminUser = (id, data) => {
+  return apiRequest(`/admin/users/${id}`, {
+    method: 'PUT',
+    body: data
+  })
 }
 

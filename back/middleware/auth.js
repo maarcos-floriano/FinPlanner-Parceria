@@ -55,18 +55,22 @@ module.exports = {
     }
   },
 
-  generateToken: (userId) => {
-    return jwt.sign({ userId }, process.env.JWT_SECRET, { expiresIn: '7d' });
-  },
-
-  generateToken: (userId, expiresIn) => {
+  generateToken: (userId, expiresIn = '7d', type = 'auth') => {
     return jwt.sign(
       {
         userId,
-        type: "password_reset"
+        type
       }, 
       process.env.JWT_SECRET,
       { expiresIn: expiresIn }
     );
+  },
+
+  requireAdmin: (req, res, next) => {
+    if (!req.user?.is_admin) {
+      return res.status(403).json({ error: 'Acesso restrito ao administrador' });
+    }
+
+    next();
   }
 };

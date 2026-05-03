@@ -85,6 +85,12 @@ const Navbar = () => {
                 <Link to="/settings" className="hover:text-purple-600" title="Configurações">
                   <Icon name="cog" size="lg" />
                 </Link>
+
+                {user?.is_admin && (
+                  <Link to="/admin" className="hover:text-purple-600 text-sm font-semibold">
+                    Admin
+                  </Link>
+                )}
                 
                 <button
                   onClick={handleLogout}

@@ -1,191 +1,91 @@
-import { Link, useNavigate } from 'react-router-dom'
-import { useAuth } from '../../context/AuthContext'
-import { Check, Crown, X } from "lucide-react"
-import Modal from '../UI/Modal'
-import { useState } from 'react'
+import { Check, MessageCircle, Smartphone, Zap } from 'lucide-react'
+import { KIRVANO_ESSENTIAL_URL, KIRVANO_WHATSAPP_URL } from '../../utils/constants'
+
+const plans = [
+  {
+    id: 'essential',
+    name: 'Essencial',
+    price: 'R$ 19,90',
+    description: 'Para controlar o dinheiro pelo app, sem complicar a rotina.',
+    icon: Smartphone,
+    url: KIRVANO_ESSENTIAL_URL,
+    features: ['Lancamentos ilimitados', 'Dashboard mensal', 'Relatorios por categoria', 'Metas financeiras']
+  },
+  {
+    id: 'whatsapp',
+    name: 'WhatsApp',
+    price: 'R$ 29,90',
+    description: 'Para registrar e consultar tudo pelo WhatsApp com automacao n8n.',
+    icon: MessageCircle,
+    url: KIRVANO_WHATSAPP_URL,
+    featured: true,
+    features: ['Tudo do Essencial', 'Registro por mensagem', 'Consulta de saldo pelo WhatsApp', 'Fluxo rapido para uso diario']
+  }
+]
 
 const PricingPlans = () => {
-  const { user, isProUser } = useAuth()
-
-  const navigate = useNavigate();
-
-    const [modal, setModal] = useState({
-      isOpen: false,
-      text: "",
-      title: "",
-    });
-  
-
-  const handleOnCloseModal = () => {
-    setModal({
-      isOpen: false,
-      text: '',
-      title: '',
-    });    
-  }
-
-
-  const handleCheckout = async () => {
-    // Integração com Stripe será implementada aqui
-    setModal({
-      isOpen: true,
-      text: 'Redirecionando para checkout...',
-      title: 'Notificação',
-    });
-    const timer = setTimeout(() => {
-      setModal({
-        isOpen: false,
-        text: '',
-        title: '',
-      });    
-      navigate("/auth");
-      window.open(
-        "https://pay.kirvano.com/bd353e05-2ba0-4e19-b68b-fd8c6b9ea069",
-        "_blank",
-        "noopener,noreferrer"
-      );
-    }, 2000);  
-
-    return () => clearTimeout(timer);
+  const handleCheckout = (url) => {
+    window.open(url, '_blank', 'noopener,noreferrer')
   }
 
   return (
-    <div className="max-w-4xl mx-auto">
-      <div className="text-center mb-12">
-        <h1 className="text-3xl font-bold mb-4">Upgrade para FinPlanner PRO</h1>
-        <p className="text-xl text-gray-600 dark:text-gray-400">
-          Desbloqueie todo o potencial do seu planejamento financeiro
+    <div className="max-w-5xl mx-auto">
+      <div className="text-center mb-10">
+        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-100 text-emerald-700 text-sm font-semibold mb-4">
+          <Zap size={16} />
+          Produto low-ticket, simples de manter
+        </div>
+        <h1 className="text-3xl md:text-4xl font-bold mb-3">Escolha como voce quer registrar sua vida financeira</h1>
+        <p className="text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
+          So existem dois planos. A unica diferenca e a automacao no WhatsApp.
         </p>
       </div>
-      
-      <div className="grid md:grid-cols-2 gap-8 mb-12">
-        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-8 border-2 border-gray-200 dark:border-gray-700">
-          <div className="text-center mb-8">
-            <h3 className="text-2xl font-bold mb-2">Plano Free</h3>
-            <p className="text-4xl font-bold mb-1">R$ 0</p>
-            <p className="text-gray-500">para sempre</p>
-          </div>
-          
-          <ul className="space-y-4 mb-8">
-            <li className="flex items-start">
-              <Check className="text-green-500 mt-1 mr-3" size={20} />
-              <span>Até 20 transações por mês</span>
-            </li>
-            <li className="flex items-start">
-              <Check className="text-green-500 mt-1 mr-3" size={20} />
-              <span>Dashboard básico</span>
-            </li>
-            <li className="flex items-start">
-              <Check className="text-green-500 mt-1 mr-3" size={20} />
-              <span>Histórico simples</span>
-            </li>
-            <li className="flex items-start">
-              <Check className="text-green-500 mt-1 mr-3" size={20} />
-              <span>1 categoria personalizada</span>
-            </li>
-            <li className="flex items-start">
-              <X className="text-gray-400 mt-1 mr-3" size={20} />
-              <span className="text-gray-500">Relatórios avançados</span>
-            </li>
-            <li className="flex items-start">
-              <X className="text-gray-400 mt-1 mr-3" size={20} />
-              <span className="text-gray-500">Metas e alertas</span>
-            </li>
-          </ul>
-          
-          <Link
-            to="/dashboard"
-            className="w-full py-3 bg-gray-200 dark:bg-gray-700 rounded-lg font-semibold hover:bg-gray-300 dark:hover:bg-gray-600 transition block text-center"
-          >
-            Continuar no Free
-          </Link>
-        </div>
-        
-        <div className="bg-gradient-to-b from-purple-900 to-gray-900 rounded-xl shadow-lg p-8 border-2 border-purple-500 relative">
-          <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
-            <span className="pro-badge px-6 py-2 rounded-full text-white font-bold">
-              MELHOR OFERTA
-            </span>
-          </div>
-          
-          <div className="text-center mb-8">
-            <h3 className="text-2xl font-bold mb-2 text-white">Plano Pro</h3>
-            <p className="text-4xl font-bold mb-1 text-white">R$ 19,90</p>
-            <p className="text-gray-300">por mês</p>
-            <p className="text-sm text-gray-400">
-              ou R$ 192,00/ano (economize 20%)
-            </p>
-          </div>
-          
-          <ul className="space-y-4 mb-8">
-            <li className="flex items-start">
-              <Check className="text-purple-300 mt-1 mr-3" size={20} />
-              <span className="text-white">Transações ilimitadas</span>
-            </li>
-            <li className="flex items-start">
-              <Check className="text-purple-300 mt-1 mr-3" size={20} />
-              <span className="text-white">Relatórios avançados</span>
-            </li>
-            <li className="flex items-start">
-              <Check className="text-purple-300 mt-1 mr-3" size={20} />
-              <span className="text-white">Metas e alertas de gasto</span>
-            </li>
-            <li className="flex items-start">
-              <Check className="text-purple-300 mt-1 mr-3" size={20} />
-              <span className="text-white">Projeção financeira</span>
-            </li>
-            <li className="flex items-start">
-              <Check className="text-purple-300 mt-1 mr-3" size={20} />
-              <span className="text-white">Exportação de dados (PDF/Excel)</span>
-            </li>
-            <li className="flex items-start">
-              <Check className="text-purple-300 mt-1 mr-3" size={20} />
-              <span className="text-white">Suporte prioritário</span>
-            </li>
-          </ul>
-          
-          <button
-            onClick={handleCheckout}
-            className="w-full py-3 bg-gradient-to-r from-yellow-400 to-yellow-500 text-gray-900 rounded-lg font-bold hover:shadow-lg transition transform hover:-translate-y-1"
-          >
-            <Crown className="inline mr-2" size={20} />
-            Assinar Plano Pro Agora
-          </button>
-        </div>
+
+      <div className="grid md:grid-cols-2 gap-4 md:gap-6">
+        {plans.map((plan) => {
+          const Icon = plan.icon
+          return (
+            <div
+              key={plan.id}
+              className={`bg-white dark:bg-gray-800 border rounded-lg p-6 ${plan.featured ? 'border-emerald-500 shadow-lg' : 'border-gray-200 dark:border-gray-700'}`}
+            >
+              <div className="flex items-start justify-between gap-4 mb-6">
+                <div>
+                  <div className="flex items-center gap-2 mb-2">
+                    <Icon className="text-emerald-600" size={22} />
+                    <h2 className="text-2xl font-bold">{plan.name}</h2>
+                  </div>
+                  <p className="text-gray-600 dark:text-gray-400">{plan.description}</p>
+                </div>
+                {plan.featured && (
+                  <span className="text-xs px-2 py-1 rounded-full bg-emerald-100 text-emerald-700 font-bold">
+                    Maior retencao
+                  </span>
+                )}
+              </div>
+
+              <p className="text-4xl font-bold mb-1">{plan.price}</p>
+              <p className="text-sm text-gray-500 mb-6">por mes</p>
+
+              <ul className="space-y-3 mb-6">
+                {plan.features.map((feature) => (
+                  <li key={feature} className="flex items-start gap-2">
+                    <Check className="text-emerald-600 mt-0.5" size={18} />
+                    <span>{feature}</span>
+                  </li>
+                ))}
+              </ul>
+
+              <button
+                onClick={() => handleCheckout(plan.url)}
+                className={`w-full py-3 rounded-lg font-semibold transition ${plan.featured ? 'bg-emerald-600 text-white hover:bg-emerald-700' : 'bg-gray-900 text-white dark:bg-white dark:text-gray-900'}`}
+              >
+                Assinar {plan.name}
+              </button>
+            </div>
+          )
+        })}
       </div>
-      
-      <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-8">
-        <h3 className="text-xl font-bold mb-6 text-center">Perguntas Frequentes</h3>
-        <div className="space-y-6">
-          <div>
-            <h4 className="font-bold mb-2">Posso cancelar a qualquer momento?</h4>
-            <p className="text-gray-600 dark:text-gray-400">
-              Sim, você pode cancelar sua assinatura PRO a qualquer momento. 
-              Você continuará com acesso até o final do período já pago.
-            </p>
-          </div>
-          <div>
-            <h4 className="font-bold mb-2">E se eu não gostar do PRO?</h4>
-            <p className="text-gray-600 dark:text-gray-400">
-              Oferecemos garantia de reembolso de 7 dias. Se não estiver satisfeito, 
-              devolvemos seu dinheiro.
-            </p>
-          </div>
-          <div>
-            <h4 className="font-bold mb-2">Meus dados ficam seguros?</h4>
-            <p className="text-gray-600 dark:text-gray-400">
-              Sim, utilizamos criptografia de ponta a ponta e não compartilhamos 
-              seus dados com terceiros.
-            </p>
-          </div>
-        </div>
-      </div>
-        <Modal
-          isOpen={modal.isOpen}
-          onClose={handleOnCloseModal}
-          title={modal.title}
-          children={modal.text}
-      />
     </div>
   )
 }

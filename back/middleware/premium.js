@@ -1,8 +1,8 @@
 module.exports = {
   requirePremium: (req, res, next) => {
-    if (req.user.plan !== 'premium') {
+    if (!['essential', 'whatsapp', 'premium'].includes(req.user.plan)) {
       return res.status(403).json({ 
-        error: 'Recurso exclusivo para assinantes Premium',
+        error: 'Recurso exclusivo para assinantes',
         upgradeRequired: true 
       });
     }

@@ -10,6 +10,7 @@ import DashboardPage from './pages/DashboardPage'
 import ReportsPage from './pages/ReportsPage'
 import PremiumPage from './pages/PremiumPage'
 import SettingsPage from './pages/SettingsPage'
+import AdminPage from './pages/AdminPage'
 import NotFoundPage from './pages/NotFoundPage'
 import './utils/icons' // Importar ícones
 import {PrivateRoute, PublicRoute} from './ConfigRoute'
@@ -64,6 +65,11 @@ function App() {
                     <Route path="/settings" element={
                       <PrivateRoute>
                         <SettingsPage />
+                      </PrivateRoute>
+                    } />
+                    <Route path="/admin" element={
+                      <PrivateRoute>
+                        <AdminPage />
                       </PrivateRoute>
                     } />
                     <Route path="*" element={<NotFoundPage />} />

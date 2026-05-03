@@ -1,6 +1,5 @@
 import React, { createContext, useState, useContext, useEffect } from 'react'
-import { apiRequest, login as apiLogin, register as apiRegister, getProfile } from '../services/api'
-import { useNavigate } from 'react-router-dom'
+import { login as apiLogin, register as apiRegister, getProfile, googleLogin as apiGoogleLogin } from '../services/api'
 
 const AuthContext = createContext()
 
@@ -20,12 +19,17 @@ export const AuthProvider = ({ children }) => {
     checkAuth()
   }, [])
 
+  const persistSession = (data) => {
+    localStorage.setItem('finplanner_token', data.token)
+    localStorage.setItem('finplanner_user', JSON.stringify(data.user))
+    setUser(data.user)
+  }
+
   const checkAuth = async () => {
     try {
       const token = localStorage.getItem('finplanner_token')
       if (token) {
         const data = await getProfile()
-
         setUser(data.user)
       }
     } catch (error) {
@@ -40,9 +44,7 @@ export const AuthProvider = ({ children }) => {
   const login = async (email, password) => {
     try {
       const data = await apiLogin(email, password)
-      localStorage.setItem('finplanner_token', data.token)
-      localStorage.setItem('finplanner_user', JSON.stringify(data.user))
-      setUser(data.user)
+      persistSession(data)
       return { success: true, data }
     } catch (error) {
       return { success: false, error: error.message }
@@ -52,9 +54,17 @@ export const AuthProvider = ({ children }) => {
   const register = async (name, email, password) => {
     try {
       const data = await apiRegister(name, email, password)
-      localStorage.setItem('finplanner_token', data.token)
-      localStorage.setItem('finplanner_user', JSON.stringify(data.user))
-      setUser(data.user)
+      persistSession(data)
+      return { success: true, data }
+    } catch (error) {
+      return { success: false, error: error.message }
+    }
+  }
+
+  const loginWithGoogle = async (credential) => {
+    try {
+      const data = await apiGoogleLogin(credential)
+      persistSession(data)
       return { success: true, data }
     } catch (error) {
       return { success: false, error: error.message }
@@ -68,25 +78,27 @@ export const AuthProvider = ({ children }) => {
   }
 
   const updateProfile = (userData) => {
-    setUser(prev => ({ ...prev, ...userData }))
-    localStorage.setItem('finplanner_user', JSON.stringify({ ...user, ...userData }))
+    const updatedUser = { ...user, ...userData }
+    setUser(updatedUser)
+    localStorage.setItem('finplanner_user', JSON.stringify(updatedUser))
   }
 
-  const isProUser = user?.plan === 'premium'
-
-  const value = {
-    user,
-    loading,
-    isProUser,
-    login,
-    register,
-    logout,
-    updateProfile,
-    checkAuth
-  }
+  const isProUser = ['essential', 'whatsapp', 'premium'].includes(user?.plan)
+  const hasWhatsapp = user?.plan === 'whatsapp'
 
   return (
-    <AuthContext.Provider value={value}>
+    <AuthContext.Provider value={{
+      user,
+      loading,
+      isProUser,
+      hasWhatsapp,
+      login,
+      register,
+      loginWithGoogle,
+      logout,
+      updateProfile,
+      checkAuth
+    }}>
       {children}
     </AuthContext.Provider>
   )

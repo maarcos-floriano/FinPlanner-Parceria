@@ -1,148 +1,196 @@
 const User = require('../models/User');
 const { generateToken } = require('../middleware/auth');
-const { sendActivationEmail, sendNotificationUpdatePassword, sendAuthPassword } = require('../services/mail');
+const { sendNotificationUpdatePassword, sendAuthPassword } = require('../services/mail');
+
+const adminEmails = () => (process.env.ADMIN_EMAILS || '')
+  .split(',')
+  .map(email => email.trim().toLowerCase())
+  .filter(Boolean);
+
+const sanitizeUser = (user) => ({
+  id: user.id,
+  email: user.email,
+  name: user.name,
+  plan: user.plan,
+  subscription_status: user.subscription_status,
+  phone: user.phone,
+  avatar_url: user.avatar_url,
+  is_admin: user.is_admin
+});
+
+const verifyGoogleCredential = async (credential) => {
+  if (!process.env.GOOGLE_CLIENT_ID) {
+    throw new Error('GOOGLE_CLIENT_ID nao configurado');
+  }
+
+  const response = await fetch(`https://oauth2.googleapis.com/tokeninfo?id_token=${credential}`);
+  if (!response.ok) {
+    throw new Error('Token Google invalido');
+  }
+
+  const profile = await response.json();
+  if (profile.aud !== process.env.GOOGLE_CLIENT_ID || profile.email_verified !== 'true') {
+    throw new Error('Conta Google nao verificada');
+  }
+
+  return profile;
+};
 
 module.exports = {
   register: async (req, res) => {
     try {
       const { email, name, password } = req.body;
-      
-      // Verificar se usuário já existe
-      const existingUser = await User.findOne({ where: { email } });
-      if (existingUser) {
-        return res.status(400).json({ error: 'Email já cadastrado' });
+      if (!email || !name || !password) {
+        return res.status(400).json({ error: 'Nome, email e senha sao obrigatorios' });
       }
-      
-      // Criar usuário
+
+      const normalizedEmail = email.toLowerCase();
+      const existingUser = await User.findOne({ where: { email: normalizedEmail } });
+      if (existingUser) {
+        return res.status(400).json({ error: 'Email ja cadastrado' });
+      }
+
       const user = await User.create({
-        email,
+        email: normalizedEmail,
         name,
-        password_hash: password
+        password_hash: password,
+        is_admin: adminEmails().includes(normalizedEmail)
       });
-      
-      // Gerar token
-      const token = generateToken(user.id);
-      
+
       res.status(201).json({
-        message: 'Usuário criado com sucesso',
-        user: {
-          id: user.id,
-          email: user.email,
-          name: user.name,
-          plan: user.plan
-        },
-        token
+        message: 'Usuario criado com sucesso',
+        user: sanitizeUser(user),
+        token: generateToken(user.id)
       });
     } catch (error) {
       console.error('Erro no registro:', error);
-      res.status(500).json({ error: 'Erro ao criar usuário' });
+      res.status(500).json({ error: 'Erro ao criar usuario' });
     }
   },
 
-  passwordReset: async (req, res) => {
-    try {
-      const { email } = req.body;
-      const dateReqBR = new Date().toLocaleString("pt-BR", {
-        timeZone: "America/Sao_Paulo"
-      });
-
-      // Verificar se usuário já existe
-      const existingUser = await User.findOne({ where: { email } });
-      if (!existingUser) {
-        return res.status(400).json({ error: 'Email não cadastrado' });
-      }
-
-      const userId = existingUser.id; 
-      const token = generateToken(userId, "30m");
-      
-      const data = {
-        email,
-        date: dateReqBR,
-        token
-      };
-
-      await sendAuthPassword(data);
-      
-      res.status(200).json({
-        message: "Email de alteação de senha enviado.",
-      });
-    } catch (e) {
-      const message = "Erro ao enviar email de alteração de senha."; 
-      console.error(message + "\nBECK:", erro);
-      res.status(500).json({ error: message })
-    }
-  },
-
-  updatePass: async (req, res) => {
-    try {
-      const { newPass } = req.body;
-      const user = req.resetUser;
-
-      await user.update({
-        password_hash: newPass
-      });
-      
-      const data = {email: user.email};
-
-      await sendNotificationUpdatePassword(data);
-
-      res.status(200).json({ message: "Senha alterada com sucesso" });
-    } catch (e) {
-      const message = "Erro ao atualizar senha."; 
-      console.error(message + "\nBECK:", erro);
-      res.status(500).json({ error: message })
-    }
-  },
-  
   login: async (req, res) => {
     try {
       const { email, password } = req.body;
-      
-      // Buscar usuário
-      const user = await User.findOne({ where: { email } });
-      if (!user) {
-        return res.status(401).json({ error: 'Credenciais inválidas' });
+      const user = await User.findOne({ where: { email: email.toLowerCase() } });
+      if (!user || !(await user.validPassword(password))) {
+        return res.status(401).json({ error: 'Credenciais invalidas' });
       }
-      
-      // Verificar senha
-      const validPassword = await user.validPassword(password);
-      if (!validPassword) {
-        return res.status(401).json({ error: 'Credenciais inválidas' });
-      }
-      
-      // Gerar token
-      const token = generateToken(user.id);
-      
+
+      await user.update({
+        is_admin: user.is_admin || adminEmails().includes(user.email.toLowerCase()),
+        last_login_at: new Date()
+      });
+
       res.json({
         message: 'Login realizado com sucesso',
-        user: {
-          id: user.id,
-          email: user.email,
-          name: user.name,
-          plan: user.plan
-        },
-        token
+        user: sanitizeUser(user),
+        token: generateToken(user.id)
       });
     } catch (error) {
       console.error('Erro no login:', error);
       res.status(500).json({ error: 'Erro ao fazer login' });
     }
   },
-  
+
+  googleLogin: async (req, res) => {
+    try {
+      const { credential } = req.body;
+      if (!credential) {
+        return res.status(400).json({ error: 'Credencial Google nao informada' });
+      }
+
+      const profile = await verifyGoogleCredential(credential);
+      const email = profile.email.toLowerCase();
+      const [user] = await User.findOrCreate({
+        where: { email },
+        defaults: {
+          email,
+          name: profile.name || email.split('@')[0],
+          google_id: profile.sub,
+          avatar_url: profile.picture,
+          is_admin: adminEmails().includes(email),
+          last_login_at: new Date()
+        }
+      });
+
+      await user.update({
+        google_id: user.google_id || profile.sub,
+        avatar_url: profile.picture || user.avatar_url,
+        is_admin: user.is_admin || adminEmails().includes(email),
+        last_login_at: new Date()
+      });
+
+      res.json({
+        message: 'Login Google realizado com sucesso',
+        user: sanitizeUser(user),
+        token: generateToken(user.id)
+      });
+    } catch (error) {
+      console.error('Erro no login Google:', error);
+      res.status(401).json({ error: 'Nao foi possivel entrar com Google' });
+    }
+  },
+
+  passwordReset: async (req, res) => {
+    try {
+      const { email } = req.body;
+      const existingUser = await User.findOne({ where: { email: email.toLowerCase() } });
+      if (!existingUser) {
+        return res.status(400).json({ error: 'Email nao cadastrado' });
+      }
+
+      const token = generateToken(existingUser.id, '30m', 'password_reset');
+      await sendAuthPassword({
+        email,
+        date: new Date().toLocaleString('pt-BR', { timeZone: 'America/Sao_Paulo' }),
+        token
+      });
+
+      res.status(200).json({ message: 'Email de alteracao de senha enviado.' });
+    } catch (error) {
+      console.error('Erro ao enviar email de alteracao de senha:', error);
+      res.status(500).json({ error: 'Erro ao enviar email de alteracao de senha.' });
+    }
+  },
+
+  updatePass: async (req, res) => {
+    try {
+      const { newPass } = req.body;
+      await req.resetUser.update({ password_hash: newPass });
+      await sendNotificationUpdatePassword({ email: req.resetUser.email });
+      res.status(200).json({ message: 'Senha alterada com sucesso' });
+    } catch (error) {
+      console.error('Erro ao atualizar senha:', error);
+      res.status(500).json({ error: 'Erro ao atualizar senha.' });
+    }
+  },
+
   getProfile: async (req, res) => {
     try {
       res.json({
         user: {
-          id: req.user.id,
-          email: req.user.email,
-          name: req.user.name,
-          plan: req.user.plan,
+          ...sanitizeUser(req.user),
           created_at: req.user.created_at
         }
       });
     } catch (error) {
       console.error('Erro ao obter perfil:', error);
       res.status(500).json({ error: 'Erro ao obter perfil' });
+    }
+  },
+
+  updateProfile: async (req, res) => {
+    try {
+      const { name, phone } = req.body;
+      await req.user.update({
+        name: name || req.user.name,
+        phone: phone || req.user.phone
+      });
+
+      res.json({ user: sanitizeUser(req.user) });
+    } catch (error) {
+      console.error('Erro ao atualizar perfil:', error);
+      res.status(500).json({ error: 'Erro ao atualizar perfil' });
     }
   }
 };

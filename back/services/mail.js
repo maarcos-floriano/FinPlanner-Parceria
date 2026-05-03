@@ -1,79 +1,79 @@
 const { Resend } = require('resend');
 
-const resend = new Resend(process.env.RESEND_API_KEY);
+const from = process.env.MAIL_FROM || 'FinPlanner <onboarding@resend.dev>';
+const appUrl = process.env.FRONTEND_URL?.split(',')[0] || 'http://localhost:5173';
+
+const getResend = () => {
+  if (!process.env.RESEND_API_KEY) return null;
+  return new Resend(process.env.RESEND_API_KEY);
+};
+
+const sendMail = async ({ to, subject, html }) => {
+  const resend = getResend();
+
+  if (!resend) {
+    console.log(`[mail:skip] ${subject} -> ${to}`);
+    return { skipped: true };
+  }
+
+  return resend.emails.send({
+    from,
+    to,
+    subject,
+    html
+  });
+};
 
 async function sendActivationEmail(to, code) {
-   console.log("📧 Enviando via Resend para:", to);
-
   try {
-    const response = await resend.emails.send({
-      from: "Parceria Company <onboarding@resend.dev>",
-      to: "thiagovieirab2b@gmail.com",
-      subject: "Seu acesso está pronto 🚀",
+    return await sendMail({
+      to,
+      subject: 'Seu acesso FinPlanner esta pronto',
       html: `
         <h2>Pagamento confirmado!</h2>
-        <p>Seu código de ativação:</p>
+        <p>Use o codigo abaixo para ativar seu plano:</p>
         <h1>${code}</h1>
-        <p>${to}</p>
-        <p></p>
+        <p>Email: ${to}</p>
       `
     });
-
-    console.log("✅ Email enviado:", response);
-
-  } catch (err) {
-    console.error("❌ ERRO AO ENVIAR EMAIL:", err);
+  } catch (error) {
+    console.error('Erro ao enviar email de ativacao:', error);
   }
 }
 
 async function sendAuthPassword(data) {
-  console.log("Dados.data:", data.date);
-
-  const { date, email, token} = data;
+  const { date, email, token } = data;
 
   try {
-    const response = await resend.emails.send({
-      from: "Parceria Company <onboarding@resend.dev>",
-      to: "thiagovieirab2b@gmail.com",
-      subject: "Confimação de atualização de senha",
+    return await sendMail({
+      to: email,
+      subject: 'Redefinicao de senha FinPlanner',
       html: `
-        <h2>Solicitação feita em ${date}</h2>
-        <p>Seu código de ativação expira em 30 minutos:</p>
-        <p>https://fin-planner-parceria.vercel.app/forgot-password?token=${token}</p>
-        <p>${email}</p>
+        <h2>Solicitacao feita em ${date}</h2>
+        <p>Este link expira em 30 minutos:</p>
+        <p><a href="${appUrl}/forgot-password?token=${token}">Redefinir senha</a></p>
       `
     });
-
-    console.log("✅ Email enviado:", response);
-
-  } catch (err) {
-    console.error("❌ ERRO AO ENVIAR EMAIL:", err);
+  } catch (error) {
+    console.error('Erro ao enviar email de senha:', error);
   }
 }
 
 async function sendNotificationUpdatePassword(data) {
-  console.log("Senha atualizada.");
-
-  const {email } = data;
+  const { email } = data;
 
   try {
-    const response = await resend.emails.send({
-      from: "Parceria Company <onboarding@resend.dev>",
-      to: "thiagovieirab2b@gmail.com",
-      subject: "Notificação de atualização de senha",
+    return await sendMail({
+      to: email,
+      subject: 'Senha FinPlanner atualizada',
       html: `
-        <h2>Atualização de sua senha foi concluída com sucesso.</h2>
-        <p>https://fin-planner-parceria.vercel.app/auth</p>
-        <p>${email}</p>
+        <h2>Sua senha foi atualizada com sucesso.</h2>
+        <p><a href="${appUrl}/auth">Entrar no FinPlanner</a></p>
       `
     });
-
-    console.log("✅ Email enviado:", response);
-
-  } catch (err) {
-    console.error("❌ ERRO AO ENVIAR EMAIL:", err);
+  } catch (error) {
+    console.error('Erro ao enviar notificacao de senha:', error);
   }
-
 }
 
 module.exports = { sendActivationEmail, sendAuthPassword, sendNotificationUpdatePassword };

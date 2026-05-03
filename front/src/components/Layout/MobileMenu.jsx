@@ -1,11 +1,11 @@
-import { Home, LogOut, Moon, Settings, Sun } from 'lucide-react';
+import { Home, LogOut, Moon, Settings, ShieldCheck, Sun } from 'lucide-react'
 import { Link } from 'react-router-dom'
 
-const MobileMenu = ({ isOpen, onClose, user, isProUser, darkMode, toggleTheme, onLogout }) => {
+const MobileMenu = ({ isOpen, onClose, user, darkMode, toggleTheme, onLogout }) => {
   if (!isOpen) return null
 
   return (
-    <div className="  md:hidden fixed top-14 left-0 w-full glass-effect border-t border-gray-200 dark:border-gray-800 px-4 py-3 z-50">
+    <div className="md:hidden fixed top-14 left-0 w-full glass-effect border-t border-gray-200 dark:border-gray-800 px-4 py-3 z-50">
       <div className="flex flex-col space-y-3">
         <Link to="/#features" className="py-2 hover:text-purple-600" onClick={onClose}>
           Funcionalidades
@@ -13,7 +13,7 @@ const MobileMenu = ({ isOpen, onClose, user, isProUser, darkMode, toggleTheme, o
         <Link to="/#pricing" className="py-2 hover:text-purple-600" onClick={onClose}>
           Planos
         </Link>
-        
+
         <div className="pt-3 border-t border-gray-200 dark:border-gray-800">
           {!user ? (
             <div id="mobileAuthButtons">
@@ -29,40 +29,32 @@ const MobileMenu = ({ isOpen, onClose, user, isProUser, darkMode, toggleTheme, o
                 className="w-full py-2 rounded-lg bg-purple-600 text-white block text-center"
                 onClick={onClose}
               >
-                Testar Grátis
+                Comecar agora
               </Link>
             </div>
           ) : (
             <div id="mobileUserMenu">
-              <Link
-                to="/dashboard"
-                className="w-full mb-2 py-2 text-left flex items-center"
-                onClick={onClose}
-              >
+              <Link to="/dashboard" className="w-full mb-2 py-2 text-left flex items-center" onClick={onClose}>
                 <Home size={18} className="mr-2" />
                 Dashboard
               </Link>
-              <Link
-                to="/settings"
-                className="w-full mb-2 py-2 text-left flex items-center"
-                onClick={onClose}
-              >
+              <Link to="/settings" className="w-full mb-2 py-2 text-left flex items-center" onClick={onClose}>
                 <Settings size={18} className="mr-2" />
-                Configurações
+                Configuracoes
               </Link>
+              {user?.is_admin && (
+                <Link to="/admin" className="w-full mb-2 py-2 text-left flex items-center" onClick={onClose}>
+                  <ShieldCheck size={18} className="mr-2" />
+                  Admin
+                </Link>
+              )}
               <div className="flex items-center justify-between mb-4">
                 <span className="text-sm">Tema</span>
-                <button
-                  onClick={toggleTheme}
-                  className="p-2 rounded-full bg-gray-200 dark:bg-gray-800"
-                >
+                <button onClick={toggleTheme} className="p-2 rounded-full bg-gray-200 dark:bg-gray-800">
                   {darkMode ? <Sun size={18} /> : <Moon size={18} />}
                 </button>
               </div>
-              <button
-                onClick={() => { onLogout(); onClose(); }}
-                className="w-full py-2 text-left text-red-500 flex items-center"
-              >
+              <button onClick={() => { onLogout(); onClose() }} className="w-full py-2 text-left text-red-500 flex items-center">
                 <LogOut size={18} className="mr-2" />
                 Sair
               </button>
